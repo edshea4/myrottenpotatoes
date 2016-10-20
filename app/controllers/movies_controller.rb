@@ -11,5 +11,39 @@ class MoviesController < ApplicationController
   def new
     @movie = Movie.new
     # default: render 'new' template
-  end  
+  end
+  def destroy
+    @movie = Movie.find(params[:id])
+    @movie.destroy
+    flash[:notice] = "Movie '#{@movie.title}' deleted."
+    redirect_to movies_path
+  end
+  def create
+    @movie = Movie.create!(user_params)
+    flash[:notice] = "#{@movie.title} was successfully created."
+    redirect_to movies_path
+  end
+  def edit
+    @movie = Movie.find params[:id]
+  end
+  #def update
+  #  @movie = Movie.find params[:id]
+  #  @movie.update_attributes!(user_params)
+  #  flash[:notice] = "#{@movie.title} was successfully updated."
+  #  redirect_to movie_path(@movie)
+  #end
+  def update
+    @movie = Movie.find params[:id]
+    @movie.update_attributes!(user_params)
+    respond_to do |client_wants|
+      client_wants.html {  redirect_to movie_path(@movie)  } # as before
+      client_wants.xml  {  render :xml => @movie.to_xml    }
+    end
+  end
+ private 
+  def user_params
+    params.require(:movie)
+    params[:movie].permit(:title,:rating,:release_date)
+  end
+
 end
